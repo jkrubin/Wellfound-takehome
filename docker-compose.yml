@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: wellfound
+      POSTGRES_PASSWORD: wellfound
+      POSTGRES_DB: wellfound
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - my_network
+  server:
+    build:
+      context: ./server 
+      dockerfile: Dockerfile 
+    container_name: wellfound-server
+    environment:
+      DATABASE_URL: postgres://wellfound:wellfound@postgres-db:5432/wellfound
+      DB_NAME: wellfound
+      DB_USER: wellfound
+      DB_PASS: wellfound
+      DB_HOST: postgres-db
+      NODE_ENV: development
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - my_network
+networks:
+  my_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
